@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriSmart AI - Pocket Kisan Advisor</title>
+  <title>AgriSmart AI - Pocket Farmer Advisor</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-QHRsULlKVCgvx2x8IB+KWna+wvWH8qNqrNk2URrFvH7xeec5g7FKciNkRIj6QPzvm3kcV8es2g00rqoMw+9ZZA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
@@ -14,7 +14,7 @@
         <i class="fas fa-seedling"></i>
         <div>
           <h2>AgriSmart</h2>
-          <p>AI Kisan Advisor</p>
+          <p>AI Farm Advisor</p>
         </div>
       </div>
       <div class="location">Lucknow, UP</div>
@@ -22,62 +22,136 @@
   </nav>
 
   <main class="container">
-    <section class="hero-card">
-      <div>
-        <span class="eyebrow">फसल की कुशल देखभाल</span>
-        <h1>तुरंत रोग पहचानें और सही सलाह पाएं</h1>
-        <p>AgriSmart आपकी फसल की हालत को समझता है और हिंदी में सरल खेत संचालन सुझाव देता है।</p>
-      </div>
-      <div class="hero-actions">
-        <div class="feature-card">
-          <i class="fas fa-camera"></i>
-          <h3>फोटो से जांच</h3>
-          <p>अपने खेत की फोटो अपलोड करें और रोग पहचानें।</p>
+    <section id="home-screen" class="screen">
+      <section class="hero-card">
+        <div>
+          <span class="eyebrow">Smarter Crop Care</span>
+          <h1>Detect disease fast and get clear crop advice</h1>
+          <p>AgriSmart understands your field and delivers easy farming suggestions in English.</p>
         </div>
-        <div class="feature-card">
-          <i class="fas fa-microphone"></i>
-          <h3>आवाज़ से पूछें</h3>
-          <p>बोलकर अपनी समस्या बताएं और सलाह पाएं।</p>
+        <div class="hero-actions">
+          <div class="feature-card">
+            <i class="fas fa-camera"></i>
+            <h3>Image Analysis</h3>
+            <p>Upload a crop photo and identify the issue instantly.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-microphone"></i>
+            <h3>Voice Input</h3>
+            <p>Describe your problem and receive tailored farming tips.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab(0)">📸 Photo Analysis</button>
+        <button class="tab-btn" onclick="showTab(1)">🎤 Voice Advice</button>
+      </div>
+
+      <div id="photo-tab" class="tab-content">
+        <div class="upload-box">
+          <div class="form-row">
+            <label for="crop-select">Select crop type</label>
+            <select id="crop-select" class="text-input">
+              <option value="Tomato">Tomato</option>
+              <option value="Paddy">Paddy</option>
+              <option value="Wheat">Wheat</option>
+              <option value="Potato">Potato</option>
+              <option value="Cotton">Cotton</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="location-input">Location</label>
+            <input id="location-input" class="text-input" type="text" value="Lucknow, UP" />
+          </div>
+          <input type="file" id="image-upload" accept="image/*" hidden>
+          <button type="button" class="upload-area" aria-label="Upload crop or leaf photo" onclick="document.getElementById('image-upload').click()">
+            <i class="fas fa-camera fa-3x"></i>
+            <p>Upload a crop or leaf photo</p>
+            <span class="btn">Choose Photo</span>
+          </button>
+          <p class="hint-text">The result screen will open automatically after upload.</p>
         </div>
       </div>
+
+      <div id="voice-tab" class="tab-content hidden">
+        <div class="voice-box voice-panel">
+          <div class="form-row">
+            <label for="voice-crop-select">Crop type</label>
+            <select id="voice-crop-select" class="text-input">
+              <option value="Tomato">Tomato</option>
+              <option value="Paddy">Paddy</option>
+              <option value="Wheat">Wheat</option>
+              <option value="Potato">Potato</option>
+              <option value="Cotton">Cotton</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="voice-location-input">Location</label>
+            <input id="voice-location-input" class="text-input" type="text" value="Lucknow, UP" />
+          </div>
+          <div class="form-row">
+            <label for="voice-text">Describe your issue</label>
+            <textarea id="voice-text" class="text-area" rows="4" placeholder="Leaves are turning yellow, grains are drying..."></textarea>
+          </div>
+          <button id="record-btn" class="btn action-btn">📤 Submit</button>
+          <p id="voice-status" class="hint-text">Write your issue and click Submit.</p>
+        </div>
+      </div>
+
+      <div class="trust-bar">
+        <div>🌾 38+ diseases detected</div>
+        <div>📍 Uttar Pradesh</div>
+        <div>🗣️ English advisory</div>
+      </div>
+
+      <section class="history-panel">
+        <div class="history-header">
+          <h3>Recent checks</h3>
+          <p>See your last three analysis results.</p>
+        </div>
+        <div id="history-list" class="history-list"></div>
+      </section>
     </section>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab(0)">📸 फसल की फोटो</button>
-      <button class="tab-btn" onclick="showTab(1)">🎤 आवाज में बताएं</button>
-    </div>
+    <section id="result-screen" class="screen hidden">
+      <button class="back-btn" onclick="showHome()"><i class="fas fa-arrow-left"></i> Back to Home</button>
+      <section class="result-card">
+        <div class="result-header">
+          <span class="eyebrow">Analysis Results</span>
+          <h2 id="result-crop">Crop Details</h2>
+          <p id="result-summary">Review the detailed advice for your crop below.</p>
+        </div>
 
-    <div id="photo-tab" class="tab-content">
-      <div class="upload-box">
-        <input type="file" id="image-upload" accept="image/*" hidden>
-        <button
-          type="button"
-          class="upload-area"
-          aria-label="फसल या पत्ते की फोटो अपलोड करें"
-          onclick="document.getElementById('image-upload').click()"
-        >
-          <i class="fas fa-camera fa-3x"></i>
-          <p>फसल या पत्ते की फोटो अपलोड करें</p>
-          <span class="btn">फोटो चुनें</span>
-        </button>
-      </div>
-    </div>
+        <div class="result-grid">
+          <div class="metric-card">
+            <h4>Disease</h4>
+            <p id="result-disease">Loading...</p>
+          </div>
+          <div class="metric-card">
+            <h4>Confidence</h4>
+            <p id="result-confidence">Loading...</p>
+          </div>
+          <div class="metric-card advice-block">
+            <h4>Advice</h4>
+            <p id="result-advice">Loading...</p>
+          </div>
+          <div class="metric-card fertilizer-block">
+            <h4>Fertilizer Plan</h4>
+            <p id="result-fertilizer">Loading...</p>
+          </div>
+        </div>
 
-    <div id="voice-tab" class="tab-content hidden">
-      <div class="voice-box">
-        <button id="record-btn" class="record-btn">
-          <i class="fas fa-microphone"></i>
-        </button>
-        <p id="voice-status">अपनी समस्या बताएं (हिंदी में बोलें)</p>
-        <p class="hint-text">रिकॉर्डिंग बंद करने के बाद आप अपना टेक्स्ट इनपुट दे सकते हैं।</p>
-      </div>
-    </div>
-
-    <div class="trust-bar">
-      <div>🌾 38+ रोग पहचान</div>
-      <div>📍 उत्तर प्रदेश</div>
-      <div>🗣️ हिंदी में सलाह</div>
-    </div>
+        <div class="notes-card">
+          <h4>Quick Tips</h4>
+          <ul>
+            <li>Remove affected leaves immediately.</li>
+            <li>Keep soil evenly moist but not waterlogged.</li>
+            <li>Neem oil spray helps manage fungal disease.</li>
+          </ul>
+        </div>
+      </section>
+    </section>
   </main>
 
   <script src="js/script.js"></script>

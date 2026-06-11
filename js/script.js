@@ -1,4 +1,5 @@
-// Tab Switching
+const apiBaseUrl = 'http://127.0.0.1:8000';
+
 function showTab(n) {
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.style.display = 'none';
@@ -7,98 +8,150 @@ function showTab(n) {
     btn.classList.remove('active');
   });
 
-  if (n === 0) {
-    document.getElementById('photo-tab').style.display = 'block';
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-  } else {
-    document.getElementById('voice-tab').style.display = 'block';
-    document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  }
+  const tabs = [ 'photo-tab', 'voice-tab' ];
+  document.getElementById(tabs[n]).style.display = 'block';
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
 }
 
-// Image Upload Handler
-const apiBaseUrl = 'http://127.0.0.1:8000';
+function showHome() {
+  document.getElementById('result-screen').classList.add('hidden');
+  document.getElementById('home-screen').classList.remove('hidden');
+  showTab(0);
+}
 
-document.getElementById('image-upload').addEventListener('change', async function(e) {
-  if (e.target.files.length === 0) {
+function showResults(result) {
+  document.getElementById('home-screen').classList.add('hidden');
+  document.getElementById('result-screen').classList.remove('hidden');
+  document.getElementById('result-crop').textContent = result.crop || 'Crop';
+  document.getElementById('result-disease').textContent = result.disease || 'Information unavailable';
+  document.getElementById('result-confidence').textContent = result.confidence ? `${Math.round(result.confidence * 100)}%` : 'N/A';
+  document.getElementById('result-advice').textContent = result.advice || 'No advice available.';
+  document.getElementById('result-fertilizer').textContent = result.fertilizer ? `N: ${result.fertilizer.N}, P: ${result.fertilizer.P}, K: ${result.fertilizer.K}` : 'Not available';
+  saveHistory(result);
+  renderHistory();
+}
+
+function getHistory() {
+  const history = localStorage.getItem('analysisHistory');
+  return history ? JSON.parse(history) : [];
+}
+
+function saveHistory(result) {
+  const history = getHistory();
+  const item = {
+    crop: result.crop || 'Unknown',
+    disease: result.disease || 'Unknown',
+    confidence: result.confidence ? `${Math.round(result.confidence * 100)}%` : 'N/A',
+    date: new Date().toLocaleDateString('en-US'),
+  };
+  history.unshift(item);
+  if (history.length > 5) history.pop();
+  localStorage.setItem('analysisHistory', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const history = getHistory();
+  const list = document.getElementById('history-list');
+  if (!list) return;
+  if (history.length === 0) {
+    list.innerHTML = '<p class="hint-text">कोई पिछला विश्लेषण नहीं मिला।</p>';
     return;
   }
+  list.innerHTML = history.map(item => `
+    <div class="history-item">
+      <div>
+        <strong>${item.crop}</strong> - ${item.disease}
+      </div>
+      <div>${item.confidence} · ${item.date}</div>
+    </div>
+  `).join('');
+}
 
-  const file = e.target.files[0];
+async function analyzeImage(file, crop, location) {
   const formData = new FormData();
   formData.append('image', file);
-  formData.append('crop_type', 'Tomato');
-  formData.append('location', 'Lucknow, UP');
+  formData.append('crop_type', crop);
+  formData.append('location', location);
 
-  alert('✅ फोटो अपलोड हो गई! विश्लेषण हो रहा है...');
+  const response = await fetch(`${apiBaseUrl}/analyze`, {
+    method: 'POST',
+    body: formData,
+  });
 
-  try {
-    const response = await fetch(`${apiBaseUrl}/analyze`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server returned ${response.status}`);
-    }
-
-    const result = await response.json();
-    localStorage.setItem('analysisResult', JSON.stringify(result));
-    window.location.href = 'results.html';
-  } catch (error) {
-    alert('कुछ गलत हुआ: ' + error.message);
+  if (!response.ok) {
+    throw new Error(`Server returned ${response.status}`);
   }
-});
+  return response.json();
+}
 
-// Voice Recording Simulation
-let isRecording = false;
-const recordBtn = document.getElementById('record-btn');
-const voiceStatus = document.getElementById('voice-status');
+async function analyzeVoice(text, crop, location) {
+  const payload = new URLSearchParams();
+  payload.append('text', text);
+  payload.append('crop_type', crop);
+  payload.append('location', location);
 
-recordBtn.addEventListener('click', async () => {
-  isRecording = !isRecording;
-  
-  if (isRecording) {
-    recordBtn.style.background = '#ef4444';
-    recordBtn.innerHTML = '<i class="fas fa-stop"></i>';
-    voiceStatus.textContent = 'बोल रहे हैं... 🎙️';
-  } else {
-    recordBtn.style.background = '#166534';
-    recordBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-    voiceStatus.textContent = 'आपकी आवाज का विश्लेषण हो रहा है...';
+  const response = await fetch(`${apiBaseUrl}/voice-analyze`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: payload,
+  });
 
-    const voiceText = prompt('कृपया अपनी समस्या हिंदी में लिखें:', 'पत्तियां पीली हो रही हैं और दाने सूख रहे हैं');
-    if (!voiceText) {
-      voiceStatus.textContent = 'कोई आवाज़ टेक्स्ट नहीं मिला।';
-      return;
-    }
+  if (!response.ok) {
+    throw new Error(`Server returned ${response.status}`);
+  }
+  return response.json();
+}
 
+function enableControls() {
+  const uploadInput = document.getElementById('image-upload');
+  const photoCrop = document.getElementById('crop-select');
+  const photoLocation = document.getElementById('location-input');
+  const voiceBtn = document.getElementById('record-btn');
+  const voiceText = document.getElementById('voice-text');
+  const voiceCrop = document.getElementById('voice-crop-select');
+  const voiceLocation = document.getElementById('voice-location-input');
+  const voiceStatus = document.getElementById('voice-status');
+
+  uploadInput.addEventListener('change', async function(e) {
+    if (e.target.files.length === 0) return;
+    const file = e.target.files[0];
     try {
-      const payload = new URLSearchParams();
-      payload.append('text', voiceText);
-
-      const response = await fetch(`${apiBaseUrl}/voice-analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: payload,
+      const result = await analyzeImage(file, photoCrop.value, photoLocation.value);
+      showResults({
+        ...result,
+        crop: photoCrop.value,
       });
-
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
-
-      const result = await response.json();
-      localStorage.setItem('analysisResult', JSON.stringify({
-        crop: 'Unknown',
-        disease: result.disease,
-        advice: result.advice,
-      }));
-      window.location.href = 'results.html';
     } catch (error) {
       alert('कुछ गलत हुआ: ' + error.message);
-      voiceStatus.textContent = 'विश्लेषण विफल रहा।';
     }
-  }
+  });
+
+  voiceBtn.addEventListener('click', async () => {
+    const text = voiceText.value.trim();
+    if (!text) {
+      voiceStatus.textContent = 'Please describe the issue before submitting.';
+      return;
+    }
+    voiceStatus.textContent = 'Analyzing...';
+
+    try {
+      const result = await analyzeVoice(text, voiceCrop.value, voiceLocation.value);
+      showResults({
+        ...result,
+        crop: voiceCrop.value,
+      });
+      voiceText.value = '';
+    } catch (error) {
+      alert('Something went wrong: ' + error.message);
+      voiceStatus.textContent = 'Analysis failed.';
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  showHome();
+  renderHistory();
+  enableControls();
 });

@@ -33,15 +33,15 @@ async def analyze_crop(
 
         # AI Advice using Groq (or you can use Gemini)
         advice = f"""
-        फसल: {crop_type}
-        रोग: {disease}
+        Crop: {crop_type}
+        Disease: {disease}
         
-        उपाय:
-        1. नीम का तेल या Mancozeb स्प्रे करें
-        2. प्रभावित पत्तियां हटाएं
-        3. अच्छी हवा आने दें
+        Recommendations:
+        1. Apply neem oil or Mancozeb spray.
+        2. Remove affected leaves promptly.
+        3. Improve air circulation around the plants.
         
-        खाद सलाह: Nitrogen 80kg, Phosphorus 40kg per एकड़
+        Fertilizer advice: Nitrogen 80 kg/acre, Phosphorus 40 kg/acre.
         """
 
         return {
@@ -52,9 +52,9 @@ async def analyze_crop(
             "crop": crop_type,
             "location": location,
             "fertilizer": {
-                "N": "80 kg/एकड़",
-                "P": "40 kg/एकड़",
-                "K": "40 kg/एकड़"
+                "N": "80 kg/acre",
+                "P": "40 kg/acre",
+                "K": "40 kg/acre"
             }
         }
     except Exception as e:
@@ -67,7 +67,7 @@ async def voice_analyze(text: str = Form(...)):
     return {
         "status": "success",
         "disease": "Leaf Blast",
-        "advice": "आपकी फसल में Leaf Blast है। fungicide का इस्तेमाल करें।"
+        "advice": "Your crop appears to have Leaf Blast. Apply a suitable fungicide and monitor leaf condition closely."
     }
 
 
