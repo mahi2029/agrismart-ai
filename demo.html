@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AgriSmart Demo</title>
+  <style>body{font-family:system-ui,Segoe UI,Arial;padding:20px}</style>
+</head>
+<body>
+  <h1>AgriSmart Demo</h1>
+  <p>This demo will upload <code>test.jpg</code> to the backend <code>/analyze</code> endpoint and display the JSON response.</p>
+  <button id="run">Run demo</button>
+  <pre id="out"></pre>
+
+  <script>
+    document.getElementById('run').addEventListener('click', async () => {
+      const out = document.getElementById('out');
+      out.textContent = 'Uploading test.jpg...';
+      try {
+        const resp = await fetch('/test.jpg');
+        const blob = await resp.blob();
+        const fd = new FormData();
+        fd.append('image', blob, 'test.jpg');
+        fd.append('crop_type', 'Tomato');
+        fd.append('location', 'Demo');
+        const r = await fetch('/analyze', { method: 'POST', body: fd });
+        const j = await r.json();
+        out.textContent = JSON.stringify(j, null, 2);
+      } catch (e) {
+        out.textContent = 'Error: ' + e;
+      }
+    });
+  </script>
+</body>
+</html>

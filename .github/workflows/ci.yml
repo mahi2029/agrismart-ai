@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: pip install -r backend/requirements.txt
+
+    - name: Start server
+      run: |
+        nohup uvicorn backend.main:app --host 127.0.0.1 --port 8000 > server.log 2>&1 &
+        sleep 3
+
+    - name: Smoke test homepage
+      run: curl -fsS http://127.0.0.1:8000/ | grep -i 'Smarter Crop Care'
+
+    - name: Analyze endpoint test
+      run: |
+        curl -s -F "image=@test.jpg" -F "crop_type=Tomato" -F "location=CI" http://127.0.0.1:8000/analyze | grep -i '"status"\s*:\s*"success"'
+
+    - name: Upload server log on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: server-log
+        path: server.log

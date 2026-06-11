@@ -37,3 +37,18 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - Extended `/voice-analyze` to return consistent JSON (disease, confidence, advice, fertilizer)
 
 If you'd like, I can also add a Dockerfile and GitHub Actions workflow to run tests and deploy automatically.
+ 
+## Docker and CI
+
+This repository now includes a `Dockerfile` to build a container image and a GitHub Actions workflow (`.github/workflows/ci.yml`) that installs dependencies and runs a smoke test on push.
+
+### Docker build (local)
+
+```powershell
+docker build -t agrismart-ai:local .
+docker run -p 8000:8000 agrismart-ai:local
+```
+
+### Demo page
+
+Open `demo.html` (served by the backend at `/demo.html`) and click "Run demo" to POST `test.jpg` to `/analyze` and see the JSON response.
