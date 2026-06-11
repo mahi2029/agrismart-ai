@@ -54,7 +54,7 @@ function renderHistory() {
   const list = document.getElementById('history-list');
   if (!list) return;
   if (history.length === 0) {
-    list.innerHTML = '<p class="hint-text">कोई पिछला विश्लेषण नहीं मिला।</p>';
+    list.innerHTML = '<p class="hint-text">No previous analyses found.</p>';
     return;
   }
   list.innerHTML = history.map(item => `
@@ -124,7 +124,7 @@ function enableControls() {
         crop: photoCrop.value,
       });
     } catch (error) {
-      alert('कुछ गलत हुआ: ' + error.message);
+      alert('Something went wrong: ' + error.message);
     }
   });
 

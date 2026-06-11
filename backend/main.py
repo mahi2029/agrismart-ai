@@ -1,9 +1,11 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from PIL import Image
 import io
+import os
 
 app = FastAPI(title="AgriSmart AI Backend")
 
@@ -62,13 +64,31 @@ async def analyze_crop(
 
 
 @app.post("/voice-analyze")
-async def voice_analyze(text: str = Form(...)):
-    # Here you can process voice text
+async def voice_analyze(text: str = Form(...), crop_type: str = Form("Unknown"), location: str = Form("Unknown")):
+    # Basic text-based analysis placeholder — replace with NLP/ML pipeline
+    disease = "Leaf Blast"
+    confidence = 0.72
+    advice = "Your crop appears to have Leaf Blast. Apply a suitable fungicide and monitor leaf condition closely."
+    fertilizer = {"N": "80 kg/acre", "P": "40 kg/acre", "K": "40 kg/acre"}
+
     return {
         "status": "success",
-        "disease": "Leaf Blast",
-        "advice": "Your crop appears to have Leaf Blast. Apply a suitable fungicide and monitor leaf condition closely."
+        "disease": disease,
+        "confidence": confidence,
+        "advice": advice,
+        "crop": crop_type,
+        "location": location,
+        "fertilizer": fertilizer,
     }
+
+
+# Serve frontend static files when running from the backend folder
+try:
+    static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if os.path.isdir(static_dir):
+        app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+except Exception:
+    pass
 
 
 if __name__ == "__main__":
