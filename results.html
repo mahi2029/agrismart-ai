@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriSmart AI - परिणाम</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="result-card">
+      <div class="result-header">
+        <span class="eyebrow">विश्लेषण परिणाम</span>
+        <h2 id="crop-name">Loading...</h2>
+        <p id="result-summary">आपकी फसल के लिए त्वरित सलाह नीचे देखिये।</p>
+      </div>
+
+      <div class="result-content">
+        <div class="result-item">
+          <h3>रोग</h3>
+          <p id="disease-name">Loading...</p>
+        </div>
+        <div class="result-item advice-block">
+          <h3>सलाह</h3>
+          <div id="advice-section"></div>
+        </div>
+      </div>
+
+      <button onclick="window.location.href='index.html'" class="btn result-btn">
+        नई फसल जांचें
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const result = JSON.parse(localStorage.getItem('analysisResult') || '{}');
+    document.getElementById('crop-name').textContent = result.crop || 'फसल';
+    document.getElementById('disease-name').textContent = result.disease ? result.disease : 'जानकारी उपलब्ध नहीं';
+    document.getElementById('advice-section').innerHTML = `
+      <p>${result.advice || 'No advice available'}</p>
+    `;
+  </script>
+</body>
+</html>
